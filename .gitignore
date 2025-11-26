@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Secrets
+.env
+.env.local
+*.key
+*.pem
+credentials.json
+
+# IDEs
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporal
+tmp/
+temp/
+*.tmp
+
+# Database
+*.db
+*.sqlite
+
+# n8n
+n8n-local/

@@ -13,8 +13,8 @@ Multi-Agent Governance Intelligence system for personal decision-making.
 ### Local Setup
 ```bash
 # Clone
-git clone https://github.com/tu-usuario/magi-lite.git
-cd magi-lite
+git clone https://github.com/Crawbyte/NUX-AGI
+cd NUX-AGI
 
 # Setup Python environment
 cd orchestrator

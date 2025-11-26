@@ -1,0 +1,52 @@
+[tool.poetry]
+name = "magi-orchestrator"
+version = "0.1.0"
+description = "Multi-agent orchestrator for MAGI-lite"
+authors = ["cristian.roso@gmail.com"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.109.0"
+uvicorn = {extras = ["standard"], version = "^0.27.0"}
+langgraph = "^0.0.26"
+langchain = "^0.1.0"
+pydantic = "^2.5.0"
+supabase = "^2.3.0"
+redis = "^5.0.0"
+httpx = "^0.26.0"
+python-dotenv = "^1.0.0"
+tenacity = "^8.2.0"  # Reintentos
+prometheus-client = "^0.19.0"  # Métricas
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.0"
+pytest-cov = "^4.1.0"
+black = "^23.12.0"
+flake8 = "^7.0.0"
+mypy = "^1.8.0"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+```
+
+---
+
+## Estrategia de Branching (Git)
+```
+main (producción en Heroku)
+  ↑
+develop (desarrollo activo)
+  ↑
+feature/agent-omega
+feature/rag-implementation
+feature/telegram-ui
+hotfix/critical-bug
