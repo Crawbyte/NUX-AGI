@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "google-calendar": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-server-google-calendar"],
+      "description": "Upcoming events for decision context"
+    },
+    "gmail": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-server-gmail"],
+      "description": "Relevant emails for decision context"
+    },
+    "google-drive": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-server-google-drive"],
+      "description": "Documents relevant to the decision"
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-server-github"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your-token-here"
+      },
+      "description": "PRs, issues, and repo activity"
+    }
+  }
+}

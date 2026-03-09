@@ -21,6 +21,7 @@ htmlcov/
 *.key
 *.pem
 credentials.json
+mcp_config.json
 
 # IDEs
 .vscode/*
