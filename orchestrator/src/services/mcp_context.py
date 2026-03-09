@@ -4,6 +4,12 @@ Connects to Google Calendar, Gmail, Google Drive, and GitHub via MCP
 to gather real-world context before deliberation. This enriches the
 user's question with scheduled events, emails, documents, and repo
 activity, making agent analysis more grounded and personalized.
+
+Actual tool names per package:
+- @cocal/google-calendar-mcp: list-events, search-events (kebab-case)
+- @gongrzhe/server-gmail-autoauth-mcp: search_emails, read_email (snake_case)
+- @modelcontextprotocol/server-gdrive: search (single tool)
+- @modelcontextprotocol/server-github: list_pull_requests, list_issues, search_code, etc.
 """
 from __future__ import annotations
 
@@ -109,104 +115,85 @@ class MCPContextProvider:
 
                 return await gatherer(session, question)
 
-    # ── Google Calendar ─────────────────────────────────────────
+    # ── Google Calendar (@cocal/google-calendar-mcp) ────────────
 
     async def _gather_calendar(self, session: ClientSession, question: str) -> str | None:
-        """Pull upcoming events from Google Calendar."""
+        """Pull upcoming events. Tool: list-events (kebab-case)."""
         return await self._call_tool_safe(
             session,
-            tool_name="gcal_list_events",
-            tool_args={"max_results": 10},
+            tool_name="list-events",
+            tool_args={"maxResults": 10},
             header="[Google Calendar — upcoming events]",
         )
 
-    # ── Gmail ───────────────────────────────────────────────────
+    # ── Gmail (@gongrzhe/server-gmail-autoauth-mcp) ─────────────
 
     async def _gather_gmail(self, session: ClientSession, question: str) -> str | None:
-        """Search Gmail for emails relevant to the deliberation question."""
-        available = await self._available_tools(session)
+        """Search emails relevant to the question. Tool: search_emails."""
+        result = await self._call_tool_safe(
+            session,
+            tool_name="search_emails",
+            tool_args={"query": question, "maxResults": 5},
+            header="[Gmail — relevant messages]",
+        )
+        if result:
+            return result
 
-        if "gmail_search_messages" in available:
-            return await self._call_tool_safe(
-                session,
-                tool_name="gmail_search_messages",
-                tool_args={"query": question, "max_results": 5},
-                header="[Gmail — relevant messages]",
-            )
+        # Fallback: search recent emails without query filter
+        return await self._call_tool_safe(
+            session,
+            tool_name="search_emails",
+            tool_args={"query": "newer_than:7d", "maxResults": 5},
+            header="[Gmail — recent messages]",
+        )
 
-        if "gmail_list_messages" in available:
-            return await self._call_tool_safe(
-                session,
-                tool_name="gmail_list_messages",
-                tool_args={"max_results": 5},
-                header="[Gmail — recent messages]",
-            )
-
-        return None
-
-    # ── Google Drive ────────────────────────────────────────────
+    # ── Google Drive (@modelcontextprotocol/server-gdrive) ──────
 
     async def _gather_drive(self, session: ClientSession, question: str) -> str | None:
-        """Search Google Drive for documents relevant to the question."""
-        available = await self._available_tools(session)
+        """Search Drive for relevant documents. Tool: search (single tool)."""
+        return await self._call_tool_safe(
+            session,
+            tool_name="search",
+            tool_args={"query": question},
+            header="[Google Drive — relevant documents]",
+        )
 
-        if "drive_search_files" in available:
-            return await self._call_tool_safe(
-                session,
-                tool_name="drive_search_files",
-                tool_args={"query": question, "max_results": 5},
-                header="[Google Drive — relevant documents]",
-            )
-
-        if "drive_list_files" in available:
-            return await self._call_tool_safe(
-                session,
-                tool_name="drive_list_files",
-                tool_args={"max_results": 5},
-                header="[Google Drive — recent documents]",
-            )
-
-        return None
-
-    # ── GitHub ──────────────────────────────────────────────────
+    # ── GitHub (@modelcontextprotocol/server-github) ────────────
 
     async def _gather_github(self, session: ClientSession, question: str) -> str | None:
-        """Pull recent PRs, issues, and activity from GitHub."""
+        """Pull recent PRs, issues, and commits from GitHub."""
         available = await self._available_tools(session)
         parts: list[str] = []
 
-        # Recent PRs
         if "list_pull_requests" in available:
             pr_text = await self._call_tool_safe(
                 session,
                 tool_name="list_pull_requests",
-                tool_args={"state": "open", "per_page": 5},
+                tool_args={"owner": "Crawbyte", "repo": "NUX-AGI", "state": "open", "perPage": 5},
                 header="Open PRs:",
             )
             if pr_text:
                 parts.append(pr_text)
 
-        # Recent issues
         if "list_issues" in available:
             issues_text = await self._call_tool_safe(
                 session,
                 tool_name="list_issues",
-                tool_args={"state": "open", "per_page": 5},
+                tool_args={"owner": "Crawbyte", "repo": "NUX-AGI", "state": "open", "perPage": 5},
                 header="Open issues:",
             )
             if issues_text:
                 parts.append(issues_text)
 
-        # Notifications
-        if "list_notifications" in available:
-            notif_text = await self._call_tool_safe(
+        if "list_commits" in available:
+            commits_text = await self._call_tool_safe(
                 session,
-                tool_name="list_notifications",
-                tool_args={"per_page": 5},
-                header="Recent notifications:",
+                tool_name="list_commits",
+                tool_args={"owner": "Crawbyte", "repo": "NUX-AGI", "perPage": 5},
+                header="Recent commits:",
             )
-            if notif_text:
-                parts.append(notif_text)
+            if commits_text:
+                parts.append(commits_text)
 
         if not parts:
             return None
